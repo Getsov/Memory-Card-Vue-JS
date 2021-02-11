@@ -31,11 +31,14 @@
 </template>
 
 <script>
+let interval;
+const secondsToEnd = 60;
 export default {
   data() {
     return {
-      counter: 60,
+      counter: secondsToEnd,
       selectedCards: [],
+      points: 0,
       cards: [
         {
           name: "angular",
@@ -101,113 +104,41 @@ export default {
     };
   },
   watch: {
-    // cards() {
-    //   this.cards.forEach((card) => {
-    //   });
-    // },
     selectedCards() {
-      if (this.selectedCards.length == this.cards.length) {
-        setTimeout(() => {
-          this.cards.forEach((card) => {
-            card.flipped = false;
-            card.disabled = false;
-          });
-          console.log(this.cards);
-          this.randomizeCards();
-          this.selectedCards = [];
-          confirm("finished");
-        }, 500);
-      } else if (
-        this.selectedCards.length % 2 == 0 &&
-        this.selectedCards.length > 0
-      ) {
-        this.selectedCards.forEach((card) => {
-          //let firstValue;
-          //let secondValue;
-          if (!card.disabled) {
-            let secondIndex = this.selectedCards.indexOf(card);
-            console.log(secondIndex);
-            console.log(this.selectedCards);
-            let firstValue = this.selectedCards[secondIndex + 1];
-            console.log(firstValue);
-            console.log(card);
-            if (firstValue && firstValue.name !== card.name) {
-              this.cards.forEach((card) => {
-                setTimeout(() => {
-                  console.log(card.disabled);
-                  if (!card.disabled) {
-                    console.log("FLIPPPPP");
-                    card.flipped = false;
-                  }
-                }, 500);
-                //card.flipped = false;
-              });
-              this.cards = [...this.cards];
-              this.selectedCards = [];
-            }
-          } else {
-            this.cards.forEach((card) => {
-              if (card.flipped) {
-                setTimeout(() => {
-                  console.log("DISABLEDDDDD");
-                  card.disabled = true;
-                }, 500);
-              }
-            });
-          }
-        });
-
-        // let firstValue = this.selectedCards[0];
-        // let secondValue = this.selectedCards[1];
-        // console.log(this.selectedCards[0]);
-        // console.log(this.selectedCards[1]);
-        // this.selectedCards.map((card) => {
-        //   console.log("from map ");
-        //   console.log(card);
-        // });
-        // if (firstValue.name !== secondValue.name) {
-        //   this.cards.forEach((card) => {
-        //     setTimeout(() => {
-        //       card.flipped = false;
-        //     }, 500);
-        //     //card.flipped = false;
-        //   });
-        //   this.cards = [...this.cards];
-        //   this.selectedCards = [];
-        // } else {
-        //   this.cards.forEach((card) => {
-        //     if (card.flipped) {
-        //       setTimeout(() => {
-        //         console.log("DISABLEDDDDD");
-        //         card.disabled = true;
-        //       }, 500);
-        //     }
-        //   });
-        // }
+      if (this.selectedCards.length % 2 == 0 && this.selectedCards.length > 0) {
+        let firstIndex = this.selectedCards[0];
+        let secondIndex = this.selectedCards[1];
+        if (this.cards[firstIndex].name == this.cards[secondIndex].name) {
+          this.cards[firstIndex].disabled = true;
+          this.cards[secondIndex].disabled = true;
+          this.points += 2;
+        } else {
+          setTimeout(() => {
+            this.cards[firstIndex].flipped = false;
+            this.cards[secondIndex].flipped = false;
+          }, 500);
+        }
+        this.selectedCards = [];
       }
-      console.log(this.selectedCards.length);
+    },
+    counter() {
+      if (this.counter == 0) {
+        this.endGame("lost");
+      }
+    },
+    points() {
+      if (this.points == this.cards.length) {
+        this.endGame("win");
+      }
     },
   },
-  computed: {
-    // counter() {
-    //   let count = 60;
-    //   setTimeout((count) => {
-    //     if (count >= 0) {
-    //       count--;
-    //     }
-    //   }, 1000);
-    //   return count;
-    // },
-  },
+  computed: {},
   methods: {
     flipCard(index) {
       let selectedCard = this.cards[index];
       selectedCard.flipped = !selectedCard.flipped;
-      let indexIfAlreadySelected = this.selectedCards.indexOf(selectedCard);
-      if (selectedCard.flipped && indexIfAlreadySelected == -1) {
-        this.selectedCards.push(selectedCard);
-      } else if (!selectedCard.flipped && indexIfAlreadySelected != -1) {
-        this.selectedCards.splice(indexIfAlreadySelected, 1);
+      if (selectedCard.flipped) {
+        this.selectedCards.push(index);
       }
     },
     randomizeCards() {
@@ -227,6 +158,21 @@ export default {
         this.cards[randomIndex] = temporaryValue;
       }
       this.cards = [...this.cards];
+      interval = setInterval(() => {
+        this.counter--;
+      }, 1000);
+    },
+    endGame(winLost) {
+      this.cards.forEach((card) => {
+        card.flipped = false;
+        card.disabled = false;
+      });
+
+      confirm(`You ${winLost}!`);
+      clearInterval(interval);
+      this.counter = secondsToEnd;
+      this.randomizeCards();
+      this.selectedCards = [];
     },
   },
   mounted() {
