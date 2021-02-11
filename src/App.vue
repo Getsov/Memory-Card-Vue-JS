@@ -1,39 +1,30 @@
 <template>
   <div id="app">
-    <div class="counter">
-      <h1>
-        {{ counter }}
-      </h1>
-    </div>
+    <Counter :counter="counter" />
 
     <section class="memory-game">
-      <div
-        class="memory-card"
+      <Card
         v-for="(card, index) in cards"
         :key="index"
-        :data-framework="card.name"
-        @click="flipCard(index)"
-        :class="{ flip: card.flipped, 'disable-card': card.disabled }"
-      >
-        <img
-          class="front-face"
-          :src="require(`../src/assets/img/${card.name}.svg`)"
-          :alt="card.name"
-        />
-        <img
-          class="back-face"
-          src="../src/assets/img/js-badge.svg"
-          alt="JS Badge"
-        />
-      </div>
+        :card="card"
+        :index="index"
+        @flipCard="flipCard"
+      />
     </section>
   </div>
 </template>
 
 <script>
+import Counter from "./components/Counter.vue";
+import Card from "./components/Card.vue";
+
 let interval;
 const secondsToEnd = 60;
 export default {
+  components: {
+    Counter,
+    Card,
+  },
   data() {
     return {
       counter: secondsToEnd,
