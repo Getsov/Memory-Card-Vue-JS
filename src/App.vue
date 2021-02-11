@@ -104,14 +104,16 @@ export default {
     };
   },
   watch: {
-    selectedCards() {
+    selectedCards(indexes) {
+      let [firstIndex, secondIndex] = indexes;
+
       if (this.selectedCards.length % 2 == 0 && this.selectedCards.length > 0) {
-        let firstIndex = this.selectedCards[0];
-        let secondIndex = this.selectedCards[1];
         if (this.cards[firstIndex].name == this.cards[secondIndex].name) {
           this.cards[firstIndex].disabled = true;
           this.cards[secondIndex].disabled = true;
-          this.points += 2;
+          setTimeout(() => {
+            this.points += 2;
+          }, 500);
         } else {
           setTimeout(() => {
             this.cards[firstIndex].flipped = false;
